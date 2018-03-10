@@ -1,0 +1,24 @@
+.bg-primary {
+    background-color: #00796B !important;
+}
+
+.rightFloat {
+    float: right;
+}
+
+body {
+    background-color: #b5e0db;
+}
+
+h1 {
+    color: #440099;
+}
+
+li {
+    list-style: none;
+}
+
+.btn-primary {
+    background-color: #607D8B !important;
+    border-color: #607D8B !important;
+}
