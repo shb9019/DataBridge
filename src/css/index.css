@@ -22,3 +22,12 @@ li {
     background-color: #607D8B !important;
     border-color: #607D8B !important;
 }
+
+.badge {
+    border: none;
+    margin-right: 10px !important;
+}
+
+.badge:hover {
+    cursor: pointer;
+}

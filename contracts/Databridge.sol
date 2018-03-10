@@ -1,4 +1,5 @@
 pragma solidity ^0.4.17;
+pragma experimental ABIEncoderV2;
 
 contract Databridge {
     address public owner;
@@ -17,14 +18,14 @@ contract Databridge {
 
     function() public payable {}
 
-    function Databridge(uint256 _investment) public {
+    function Databridge() public payable {
         owner = msg.sender;
-        currentBalance = _investment;
+        currentBalance = msg.value;
         numberValidDatasets = 0;
     }
 
     function kill() public {
-        if (msg.sender == owner) 
+        if (msg.sender == owner)
             selfdestruct(owner);
     }
 
@@ -62,12 +63,16 @@ contract Databridge {
         return false;
     }
 
+    function getAllDatasets() public constant returns(Dataset[]) {
+        return datasets;
+    }
+
     function uploadDataset(uint256 _id, string _name, string _description) public payable {
         require(uniqueId(_id));
         require(uniqueName(_name));
 
         Dataset memory uploadSet;
-        
+
         uploadSet.owner = msg.sender;
         uploadSet.id = _id;
         uploadSet.name = _name;
@@ -82,7 +87,7 @@ contract Databridge {
     function validateDataset(uint256 _id, string _name) public payable {
         require(checkDatasetExists(_id, _name));
         uint256 datasetIndex = getDatasetOwner(_id, _name);
-        
+
         if (msg.sender == owner && !datasets[datasetIndex].valid) {
             currentBalance += msg.value;
             numberValidDatasets += 1;
