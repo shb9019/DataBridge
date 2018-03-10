@@ -5,7 +5,7 @@ module.exports = {
         index: path.join(__dirname, 'src/js', 'index.js'),
         login: path.join(__dirname, 'src/js', 'login.js'),
         // about: path.join(__dirname, 'src/js', 'about.js'),
-        // register: path.join(__dirname, 'src/js', 'register.js'),
+        register: path.join(__dirname, 'src/js', 'register.js'),
         // unverified: path.join(__dirname, 'src/js', 'unverified.js'),
         upload: path.join(__dirname, 'src/js', 'upload.js')
     },

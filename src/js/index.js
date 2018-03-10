@@ -391,7 +391,6 @@ class App extends React.Component {
             <h2><span className="badge badge-pill bg-primary" >Explore Survey Data</span></h2>
           </nav>
         <div>
-        <li id="newsList"/>
           {dataSetCards}
         </div>
         </div>
