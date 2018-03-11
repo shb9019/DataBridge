@@ -6,10 +6,10 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: "",
-      description: "",
-      dataset: null,
-      loginStatus: true
+      dataSets: [],
+      loginStatus: true,
+      upvotedSets: [],
+      downvotedSets: []
     };
 
     if(typeof web3 !== 'undefined') {
@@ -299,8 +299,9 @@ class App extends React.Component {
     this.state.ContractInstance = MyContract.at("0x7f583747f78387f11616f354fbc7e52b55293898");
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getLoginStatus();
+    this.loadDatasets();
   }
 
   getLoginStatus = () => {
@@ -310,66 +311,95 @@ class App extends React.Component {
     });
   };
 
-  uploadTransactionToBlockchain = (id, name, description) => {
-    this.state.ContractInstance.uploadDataset(id, name, description, {
-      from: web3.eth.accounts[0],
-      gas: 3000000,
-    }, function(error, result) {
-        if (!error) {
-          console.log(result);
-        }
-        else {
-          console.log(error);
-        }
-    });
-  };
-
-  updateName = (name) => {
+  loadDatasets = () => {
+    // Fetch all datasets, Fetch all upvoted and downvoted sets.
+    let dataSets = [
+      {
+        owner: 'Sai Hemanth B',
+        id: 1,
+        name: 'First DataSet',
+        description: 'This is the first ever ever ever dataset',
+        valid: false,
+        location: ''
+      },
+      {
+        owner: 'Shivashis Padhi',
+        id: 2,
+        name: 'Second DataSet',
+        description: 'This is the second ever ever ever dataset',
+        valid: true,
+        location: ''
+      }
+    ];
     this.setState({
-      name: name.target.value
-    });
-    console.log(this.state.name);
-  };
-
-  updateDescription = (description) => {
-    this.setState({
-      description: description.target.value
+      dataSets: dataSets
     });
   };
 
-  updateDataset = (dataset) => {
-    this.setState({
-      dataset: dataset.target.value
-    });
+  upvoteDataset = (id) => {
+    //Backend call to upvote a set
+    console.log("Upvoting Dataset " + id);
   };
 
+  downvoteDataset = (id) => {
+    //Backend call to downvote a set
+    console.log("Downvoting Dataset " + id);
+  };
 
-  uploadDataset = (e) => {
-    console.log("Uploading Set");
-    e.preventDefault();
-    this.uploadTransactionToBlockchain(Math.floor(Math.random() * 100) + 1, this.state.name, this.state.description);
-    console.log("Uploaded Dataset is " + this.state.name);
-    // Backend Part to Upload
+  alreadyVoted = (id) => {
+    return !(this.state.upvotedSets.indexOf(id) === -1 && this.state.downvotedSets.indexOf(id) === -1);
   };
 
   render() {
+    let dataSetCards = this.state.dataSets.map((data, index) => {
+      if (!data.valid) {
+        return (
+          <div className="card" key={index} style={{marginTop: '10px'}}>
+            <div className="card-block">
+              <h4 className="card-title">{data.name}</h4>
+              <p className="card-text">{data.description}</p>
+            </div>
+            <div className="card-footer">
+              <small className="text-muted">{data.valid ? 'Approved' : 'Not Approved'}</small>
+              {! this.alreadyVoted(data.id)
+                ? <div>
+                  <button className="badge badge-pill badge-success" onClick={() => this.upvoteDataset(data.id)}>Up Vote</button>
+                  <button className="badge badge-pill badge-danger"  onClick={() => this.downvoteDataset(data.id)}>Down Vote</button>
+                </div>
+                : <div/>
+              }
+              <small>Owner: {data.owner}</small>
+              <button className="btn btn-primary rightFloat">Download</button>
+            </div>
+          </div>
+        );
+      }
+      else {
+        return null;
+      }
+    });
+
     return (
       <div>
         <nav className="navbar navbar-inverse navbar-toggleable-md bg-primary">
-          <button className="navbar-toggler navbar-toggler-right" type="button"
-                  data-toggle="collapse" data-target="#navbarSupportedContent"
-                  aria-controls="navbarSupportedContent" aria-expanded="false"
-                  aria-label="Toggle navigation">
+          <button className="navbar-toggler navbar-toggler-right"
+                  type="button" data-toggle="collapse"
+                  data-target="#navbarSupportedContent"
+                  aria-controls="navbarSupportedContent"
+                  aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"/>
           </button>
-          <a className="navbar-brand" href="index.html">DataBridge</a>
+          <a className="navbar-brand" href="#">DataBridge</a>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav mr-auto">
+              <li className="nav-item active">
+                <a className="nav-link" href="index.html">Verified<span className="sr-only">(current)</span></a>
+              </li>
               <li className="nav-item">
                 <a className="nav-link" href="unverified.html">UnVerified</a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="uplload.html">Upload<span className="sr-only">(current)</span></a>
+                <a className="nav-link" href="upload.html">Upload</a>
               </li>
               <li>
                 <a className="nav-link" href="about.html">About</a>
@@ -378,31 +408,16 @@ class App extends React.Component {
           </div>
         </nav>
         <br/>
-        <div className='container'>
+        <div className="container">
           <nav className="navbar navbar-light bg-primary">
-            <h2><span className="badge badge-pill bg-primary">Enter your survey into the chain</span></h2>
+            <h2><span className="badge badge-pill bg-primary" >Explore Survey Data</span></h2>
           </nav>
-          <br/>
-          <div className="form">
-            <div className="form-group">
-              <label>Survey Name</label>
-              <textarea className="form-control" id="exampleTextarea" rows="1" onChange={this.updateName}/>
-            </div>
-            <div className="form-group">
-              <label>Brief Description</label>
-              <textarea className="form-control" id="exampleTextarea" rows="3" onChange={this.updateDescription}/>
-            </div>
-            <div className="form-group">
-              <label>Upload file containing survey data</label>
-              <input type="file" className="form-control-file" id="exampleInputFile" aria-describedby="fileHelp" onChange={this.updateDataset}/>
-              <small id="fileHelp" className="form-text text-muted">File containing all the data of your survey. Compressed files are encouraged.</small>
-            </div>
-            <button onClick={this.uploadDataset} className="btn btn-primary">Submit</button>
+          <div>
+            {dataSetCards}
           </div>
         </div>
-        <br/><br/>
       </div>
-    );
+    )
   }
 }
 
