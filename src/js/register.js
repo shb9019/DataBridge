@@ -11,6 +11,36 @@ class App extends React.Component {
     };
   }
 
+  componentWillMount() {
+    this.getLoginStatus();
+  }
+
+  getLoginStatus = () => {
+    fetch('http://localhost:3000/users/login', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error('Something went wrong on api server!');
+        }
+      })
+      .then(response => {
+        console.log(response);
+        if (response.success) {
+          window.location.pathname = 'index.html';
+        }
+      }).catch(error => {
+      console.error(error);
+    });
+  };
+
   updateUsername = (username) => {
     this.setState({
       username: username.target.value
@@ -23,9 +53,34 @@ class App extends React.Component {
     });
   };
 
-  registerUser = () => {
-    // User Register Backend Integration
-    console.log("User Registered");
+  registerUser = (e) => {
+    e.preventDefault();
+    fetch('http://localhost:3000/users/signup', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        'username' : this.state.username,
+        'password' : this.state.password
+      })
+    })
+      .then(response => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          console.log(response.status);
+          throw new Error('Something went wrong on api server!');
+        }
+      })
+      .then(response => {
+        console.log(response);
+      })
+      .catch(error => {
+        console.error(error);
+      });
   };
 
   render() {

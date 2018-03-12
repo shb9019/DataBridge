@@ -11,6 +11,36 @@ class App extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.getLoginStatus();
+  }
+
+  getLoginStatus = () => {
+    fetch('http://localhost:3000/users/login', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error('Something went wrong on api server!');
+        }
+      })
+      .then(response => {
+        console.log(response);
+        if (response.success) {
+          window.location.pathname = 'index.html';
+        }
+      }).catch(error => {
+      console.error(error);
+    });
+  };
+
   updateUsername = (username) => {
     this.setState({
       username: username.target.value
@@ -25,11 +55,33 @@ class App extends React.Component {
 
   authenticateUser = (e) => {
     e.preventDefault();
-    // Backend call to authenticate user
-    console.log("Inside this");
-    if (this.state.username === "root" && this.state.password === "root") {
-      window.location.href = "index.html";
-    }
+    fetch('http://localhost:3000/users/login', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        'username' : this.state.username,
+        'password' : this.state.password
+      })
+    })
+      .then(response => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error('Something went wrong on api server!');
+        }
+      })
+      .then(response => {
+        console.log(response);
+        if (response.yes === 'eys') {
+          window.location.pathname = 'index.html';
+        }
+      }).catch(error => {
+      console.error(error);
+    });
   };
 
   render() {
@@ -86,7 +138,7 @@ class App extends React.Component {
             <div className="form-group row">
               <div className="offset-sm-2 col-sm-10">
                 <button onClick={this.authenticateUser} className="btn btn-primary">Sign in</button>
-                <button type="submit" className="btn btn-primary" style={{ float: "right"}}>Register</button>
+                <a href="register.html" className="btn btn-primary" style={{ float: "right"}}>Register</a>
                 <p style={{float : "right", paddingRight: "20px"}}>Is this your first time? Register Now.
                 </p>
               </div>

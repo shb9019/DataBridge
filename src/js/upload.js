@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from 'web3';
+import IpfsApi from 'ipfs-api';
+const Buffer = require('buffer/').Buffer;
 
 class App extends React.Component {
   constructor(props) {
@@ -9,6 +11,7 @@ class App extends React.Component {
       name: "",
       description: "",
       dataset: null,
+      actualFile: null,
       loginStatus: true
     };
 
@@ -296,7 +299,7 @@ class App extends React.Component {
         "type": "function"
       }
     ]);
-    this.state.ContractInstance = MyContract.at("0x7f583747f78387f11616f354fbc7e52b55293898");
+    this.state.ContractInstance = MyContract.at("0x55dd6f8ee6ffa06b29f9999dcda7fb038f71431e");
   }
 
   componentWillMount() {
@@ -304,23 +307,43 @@ class App extends React.Component {
   }
 
   getLoginStatus = () => {
-    //Backend Call to get login status
-    this.setState({
-      loginStatus: true
+    fetch('http://localhost:3000/users/login', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error('Something went wrong on api server!');
+        }
+      })
+      .then(response => {
+        console.log(response);
+        if (!response.success) {
+          window.location.pathname = 'login.html';
+        }
+      }).catch(error => {
+      console.error(error);
     });
   };
 
-  uploadTransactionToBlockchain = (id, name, description) => {
+  uploadTransactionToBlockchain = (id, name, description, file) => {
     this.state.ContractInstance.uploadDataset(id, name, description, {
       from: web3.eth.accounts[0],
       gas: 3000000,
     }, function(error, result) {
-        if (!error) {
-          console.log(result);
-        }
-        else {
-          console.log(error);
-        }
+      if (!error) {
+        console.log(result);
+        window.location.pathname = "index.html";
+      }
+      else {
+        console.log(error);
+      }
     });
   };
 
@@ -338,18 +361,75 @@ class App extends React.Component {
   };
 
   updateDataset = (dataset) => {
+    dataset.stopPropagation();
+    dataset.preventDefault();
     this.setState({
-      dataset: dataset.target.value
+      actualFile: dataset.target.files[0]
+    });
+    const file = dataset.target.files[0];
+    let reader = new FileReader();
+    reader.onloadend = () => this.addFileToState(reader);
+    reader.readAsArrayBuffer(file);
+  };
+
+  addFileToState = (reader) => {
+    const buffer = Buffer.from(reader.result);
+    this.setState({
+      dataset: buffer
     });
   };
 
+  uploadFileToDb = (url) => {
+    fetch('http://localhost:3000/create', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        'url' : url,
+        'file' : null,
+        'title' : this.state.name,
+        'description' : this.state.description,
+      })
+    })
+      .then(response => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error('Something went wrong on api server!');
+        }
+      })
+      .then(response => {
+        console.log(response);
+        if (!response.success) {
+          window.location.pathname = 'login.html';
+        }
+        else {
+          console.log(response);
+          this.uploadTransactionToBlockchain(response.id, this.state.name, this.state.description, this.state.dataset);
+          // window.location.pathname = 'index.html';
+        }
+      }).catch(error => {
+      console.error(error);
+    });
+  };
 
   uploadDataset = (e) => {
     console.log("Uploading Set");
     e.preventDefault();
-    this.uploadTransactionToBlockchain(Math.floor(Math.random() * 100) + 1, this.state.name, this.state.description);
-    console.log("Uploaded Dataset is " + this.state.name);
-    // Backend Part to Upload
+    this.ipfsApi = IpfsApi({});
+    this.ipfsApi.add(this.state.dataset)
+      .then((response) => {
+        console.log(response, "IPFS Response Here");
+        let ipfsId = response[0].path;
+        console.log(ipfsId);
+        this.uploadFileToDb('https://gateway.ipfs.io/ipfs/' + ipfsId);
+      })
+      .catch(error => {
+        console.log(error);
+      });
   };
 
   render() {
@@ -369,7 +449,7 @@ class App extends React.Component {
                 <a className="nav-link" href="unverified.html">UnVerified</a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="uplload.html">Upload<span className="sr-only">(current)</span></a>
+                <a className="nav-link" href="upload.html">Upload<span className="sr-only">(current)</span></a>
               </li>
               <li>
                 <a className="nav-link" href="about.html">About</a>
