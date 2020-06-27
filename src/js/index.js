@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from 'web3';
+import { abi } from './abi';
 
 class App extends React.Component {
   constructor(props) {
@@ -21,288 +22,11 @@ class App extends React.Component {
       console.log("No web3 detected. Falling back to http://localhost:8545. You should remove this fallback when you deploy live, as it's inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask");
       this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
     }
-    const MyContract = this.web3.eth.contract([
-      {
-        "constant": true,
-        "inputs": [],
-        "name": "owner",
-        "outputs": [
-          {
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [],
-        "name": "currentBalance",
-        "outputs": [
-          {
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [
-          {
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "name": "datasets",
-        "outputs": [
-          {
-            "name": "owner",
-            "type": "address"
-          },
-          {
-            "name": "id",
-            "type": "uint256"
-          },
-          {
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "name": "valid",
-            "type": "bool"
-          },
-          {
-            "name": "location",
-            "type": "string"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [
-          {
-            "name": "_name",
-            "type": "string"
-          }
-        ],
-        "name": "uniqueName",
-        "outputs": [
-          {
-            "name": "",
-            "type": "bool"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [
-          {
-            "name": "_id",
-            "type": "uint256"
-          }
-        ],
-        "name": "uniqueId",
-        "outputs": [
-          {
-            "name": "",
-            "type": "bool"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [],
-        "name": "getAllDatasets",
-        "outputs": [
-          {
-            "components": [
-              {
-                "name": "owner",
-                "type": "address"
-              },
-              {
-                "name": "id",
-                "type": "uint256"
-              },
-              {
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "name": "description",
-                "type": "string"
-              },
-              {
-                "name": "valid",
-                "type": "bool"
-              },
-              {
-                "name": "location",
-                "type": "string"
-              }
-            ],
-            "name": "",
-            "type": "tuple[]"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [
-          {
-            "name": "_id",
-            "type": "uint256"
-          },
-          {
-            "name": "_name",
-            "type": "string"
-          }
-        ],
-        "name": "getDatasetOwner",
-        "outputs": [
-          {
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [
-          {
-            "name": "_id",
-            "type": "uint256"
-          },
-          {
-            "name": "_name",
-            "type": "string"
-          }
-        ],
-        "name": "checkDatasetExists",
-        "outputs": [
-          {
-            "name": "",
-            "type": "bool"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [],
-        "name": "numberValidDatasets",
-        "outputs": [
-          {
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "constant": false,
-        "inputs": [
-          {
-            "name": "_id",
-            "type": "uint256"
-          },
-          {
-            "name": "_name",
-            "type": "string"
-          }
-        ],
-        "name": "validateDataset",
-        "outputs": [],
-        "payable": true,
-        "stateMutability": "payable",
-        "type": "function"
-      },
-      {
-        "constant": false,
-        "inputs": [
-          {
-            "name": "_id",
-            "type": "uint256"
-          },
-          {
-            "name": "_name",
-            "type": "string"
-          },
-          {
-            "name": "_description",
-            "type": "string"
-          }
-        ],
-        "name": "uploadDataset",
-        "outputs": [],
-        "payable": true,
-        "stateMutability": "payable",
-        "type": "function"
-      },
-      {
-        "constant": false,
-        "inputs": [],
-        "name": "donate",
-        "outputs": [],
-        "payable": true,
-        "stateMutability": "payable",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "payable": true,
-        "stateMutability": "payable",
-        "type": "constructor"
-      },
-      {
-        "payable": true,
-        "stateMutability": "payable",
-        "type": "fallback"
-      },
-      {
-        "constant": false,
-        "inputs": [],
-        "name": "kill",
-        "outputs": [],
-        "payable": false,
-        "stateMutability": "nonpayable",
-        "type": "function"
-      }
-    ]);
-    this.state.ContractInstance = MyContract.at("0x7f583747f78387f11616f354fbc7e52b55293898");
+    const MyContract = this.web3.eth.contract(abi);
+    this.state.ContractInstance = MyContract.at("0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da");
   }
 
-  componentWillMount() {
-    this.getLoginStatus();
-  }
+  componentWillMount() {}
 
   componentDidMount() {
     this.loadDatasets();
@@ -340,7 +64,27 @@ class App extends React.Component {
   };
 
   logout = () => {
-
+    fetch('http://localhost:3000/users/logout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error('Something went wrong on api server!');
+      }
+    })
+    .then(response => {
+      window.location.href = "http://localhost:8081";
+      console.log(response);
+    }).catch(error => {
+        console.error(error);
+    });
   };
 
   loadDatasets = () => {
@@ -367,6 +111,14 @@ class App extends React.Component {
       }).catch(error => {
       console.error(error);
     });
+
+    console.log(this.state.ContractInstance);
+    this.state.ContractInstance.getAllDatasets({
+      from: web3.eth.accounts[0]
+    }, function(result) {
+      console.log(result);
+    });
+    // console.log(this.state.ContractInstance.getAllDatasets.call());
   };
 
   upvoteDataset = (id) => {
@@ -412,10 +164,9 @@ class App extends React.Component {
       })
       .then(response => {
         console.log(response);
-        this.loadDatasets();
       }).catch(error => {
-      console.error(error);
-    });
+        console.error(error);
+      });
     console.log("Downvoting Dataset " + id);
   };
 
@@ -430,7 +181,18 @@ class App extends React.Component {
   };
 
   render() {
-    let dataSetCards = this.state.dataSets.map((data, index) => {
+    (async () => {
+      const accounts = await web3.eth.getAccounts();
+      console.log(accounts);
+
+      // const balance = await web3.eth.getBalance(accounts[0]);
+      // console.log("balance", web3.utils.fromWei(balance, "ether"));
+    })();
+
+    let dataSetCards = [];
+    
+    if (this.state.dataSets) {
+      dataSetCards = this.state.dataSets.map((data, index) => {
       return (
         <div className="card" key={index} style={{marginTop: '10px'}}>
           <div className="card-block">
@@ -450,8 +212,9 @@ class App extends React.Component {
             <a href={data.url} target="_blank" className="btn btn-primary rightFloat" onClick={this.downloadFile(data.file, data.url)}>Download</a>
           </div>
         </div>
-      );
-    });
+        );
+      });
+    }
 
     return (
       <div>
@@ -477,9 +240,6 @@ class App extends React.Component {
               </li>
               <li>
                 <a className="nav-link" href="about.html">About</a>
-              </li>
-              <li>
-                <a className="nav-link" onClick={this.logout}>Logout</a>
               </li>
             </ul>
           </div>

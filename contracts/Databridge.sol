@@ -67,7 +67,7 @@ contract Databridge {
         return datasets;
     }
 
-    function uploadDataset(uint256 _id, string _name, string _description) public payable {
+    function uploadDataset(uint256 _id, string _name, string _description, string _location) public payable {
         require(uniqueId(_id));
         require(uniqueName(_name));
 
@@ -78,7 +78,7 @@ contract Databridge {
         uploadSet.name = _name;
         uploadSet.description = _description;
         uploadSet.valid = false;
-        uploadSet.location = "";
+        uploadSet.location = _location;
 
         currentBalance += msg.value;
         datasets.push(uploadSet);
